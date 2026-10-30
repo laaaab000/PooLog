@@ -454,3 +454,71 @@ a {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ===== 導覽列 ===== */
+.nav {
+    background: #ffffff;
+    border-top: 1px solid var(--border);
+}
+
+.nav-content {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    min-height: 48px;
+}
+
+.nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 48px;
+    color: var(--text-light);
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary-dark);
+}
+
+.nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--primary);
+}
+
+.nav-link:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 4px;
+}
+
+/* ===== 內頁基本版面 ===== */
+.page-content {
+    min-height: 65vh;
+    background: var(--background);
+}
+
+.page-content .section-heading {
+    margin-bottom: 0;
+}
+
+/* ===== 手機版導覽列 ===== */
+@media (max-width: 600px) {
+    .nav-content {
+        gap: 0;
+        justify-content: space-between;
+    }
+
+    .nav-link {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+}
