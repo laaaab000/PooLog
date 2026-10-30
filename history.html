@@ -6,7 +6,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PooLog｜排便紀錄</title>
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* ===== 排便紀錄頁面 ===== */
+        .history-section {
+            padding: 60px 0 88px;
+            min-height: 65vh;
+        }
+
+        .history-layout {
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .history-card {
+            padding: 30px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .history-card h3 {
+            margin-bottom: 22px;
+            font-size: 19px;
+        }
+
+        /* ===== 表單 ===== */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #ffffff;
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: 2px solid #a8c7a9;
+            border-color: var(--primary);
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-button:hover {
+            background: var(--primary-dark);
+        }
+
+        /* ===== 排便紀錄清單 ===== */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 13px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-table th {
+            color: var(--text-light);
+            font-weight: 600;
+            background: var(--background);
+        }
+
+        .history-table td {
+            color: var(--text);
+        }
+
+        .empty-message {
+            padding: 35px 10px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* ===== 平板版面 ===== */
+        @media (max-width: 900px) {
+            .history-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== 手機版面 ===== */
+        @media (max-width: 600px) {
+            .history-section {
+                padding: 45px 0 60px;
+            }
+
+            .history-card {
+                padding: 20px;
+            }
+
+            .history-table {
+                font-size: 12px;
+            }
+
+            .history-table th,
+            .history-table td {
+                padding: 11px 6px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
     <!-- 頁首 -->
@@ -28,14 +161,101 @@
     </header>
 
     <main>
-        <section class="section page-content">
+
+        <section class="history-section">
             <div class="container">
+
+                <!-- 頁面標題 -->
                 <div class="section-heading">
                     <p class="eyebrow">BOWEL MOVEMENT RECORD</p>
                     <h2>排便紀錄</h2>
+                    <p>記錄每日排便狀況，掌握自己的腸道健康。</p>
+                </div>
+
+                <div class="history-layout">
+
+                    <!-- 新增排便紀錄表單 -->
+                    <section class="history-card">
+                        <h3>新增排便紀錄</h3>
+
+                        <form id="historyForm">
+
+                            <!-- 日期 -->
+                            <div class="form-group">
+                                <label for="recordDate">排便日期</label>
+                                <input
+                                    type="date"
+                                    id="recordDate"
+                                    required
+                                >
+                            </div>
+
+                            <!-- 糞便形狀 -->
+                            <div class="form-group">
+                                <label for="stoolShape">糞便形狀</label>
+                                <select id="stoolShape" required>
+                                    <option value="">請選擇糞便形狀</option>
+                                    <option value="第1型：硬球狀">第1型：硬球狀</option>
+                                    <option value="第2型：香腸狀但結塊">第2型：香腸狀但結塊</option>
+                                    <option value="第3型：香腸狀有裂痕">第3型：香腸狀有裂痕</option>
+                                    <option value="第4型：平滑柔軟">第4型：平滑柔軟</option>
+                                    <option value="第5型：柔軟塊狀">第5型：柔軟塊狀</option>
+                                    <option value="第6型：糊狀">第6型：糊狀</option>
+                                    <option value="第7型：水狀">第7型：水狀</option>
+                                </select>
+                            </div>
+
+                            <!-- 糞便顏色 -->
+                            <div class="form-group">
+                                <label for="stoolColor">糞便顏色</label>
+                                <select id="stoolColor" required>
+                                    <option value="">請選擇糞便顏色</option>
+                                    <option value="棕色">棕色</option>
+                                    <option value="深棕色">深棕色</option>
+                                    <option value="淺棕色">淺棕色</option>
+                                    <option value="黃色">黃色</option>
+                                    <option value="綠色">綠色</option>
+                                    <option value="黑色">黑色</option>
+                                    <option value="紅色">紅色</option>
+                                    <option value="灰白色">灰白色</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="submit-button">
+                                新增排便紀錄
+                            </button>
+
+                        </form>
+                    </section>
+
+                    <!-- 排便紀錄清單 -->
+                    <section class="history-card">
+                        <h3>排便紀錄清單</h3>
+
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>糞便形狀</th>
+                                    <th>糞便顏色</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="historyList">
+                                <tr>
+                                    <td colspan="3" class="empty-message">
+                                        目前尚無排便紀錄
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </section>
+
                 </div>
             </div>
         </section>
+
     </main>
 
     <!-- 頁尾 -->
@@ -45,6 +265,103 @@
             <p>記錄日常，關心健康。</p>
         </div>
     </footer>
+
+    <!-- localStorage 資料處理 -->
+    <script>
+        const STORAGE_KEY = "poologHistory";
+
+        const historyForm = document.getElementById("historyForm");
+        const historyList = document.getElementById("historyList");
+
+        // 取得 localStorage 資料
+        function getHistory() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                const records = data ? JSON.parse(data) : [];
+
+                return Array.isArray(records) ? records : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        // 顯示排便紀錄
+        function renderHistory() {
+            const records = getHistory();
+
+            historyList.replaceChildren();
+
+            if (records.length === 0) {
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+
+                cell.colSpan = 3;
+                cell.className = "empty-message";
+                cell.textContent = "目前尚無排便紀錄";
+
+                row.appendChild(cell);
+                historyList.appendChild(row);
+                return;
+            }
+
+            records.forEach(function (record) {
+                const row = document.createElement("tr");
+
+                const dateCell = document.createElement("td");
+                dateCell.textContent = record.date;
+
+                const shapeCell = document.createElement("td");
+                shapeCell.textContent = record.shape;
+
+                const colorCell = document.createElement("td");
+                colorCell.textContent = record.color;
+
+                row.appendChild(dateCell);
+                row.appendChild(shapeCell);
+                row.appendChild(colorCell);
+
+                historyList.appendChild(row);
+            });
+        }
+
+        // 新增排便紀錄
+        historyForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const date = document.getElementById("recordDate").value;
+            const shape = document.getElementById("stoolShape").value;
+            const color = document.getElementById("stoolColor").value;
+
+            if (!date || !shape || !color) {
+                alert("請完整填寫排便紀錄！");
+                return;
+            }
+
+            const records = getHistory();
+
+            records.push({
+                date: date,
+                shape: shape,
+                color: color
+            });
+
+            try {
+                localStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify(records)
+                );
+            } catch (error) {
+                alert("資料儲存失敗，請確認瀏覽器儲存空間設定。");
+                return;
+            }
+
+            historyForm.reset();
+            renderHistory();
+        });
+
+        // 頁面載入時顯示已儲存資料
+        renderHistory();
+    </script>
 
 </body>
 </html>
