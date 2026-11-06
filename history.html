@@ -7,134 +7,126 @@
     <title>PooLog｜排便紀錄</title>
     <link rel="stylesheet" href="style.css">
 
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-        /* ===== 排便紀錄頁面 ===== */
         .history-section {
-            padding: 60px 0 88px;
-            min-height: 65vh;
+            padding: 40px 0 60px;
         }
 
-        .history-layout {
-            display: grid;
-            grid-template-columns: 0.8fr 1.2fr;
-            gap: 30px;
-            align-items: start;
+        .history-header {
+            margin-bottom: 30px;
+        }
+
+        .history-header .eyebrow {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .history-header h1 {
+            color: var(--text);
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .history-header p {
+            color: var(--text-light);
+            font-size: 15px;
         }
 
         .history-card {
-            padding: 30px;
-            background: #ffffff;
+            background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
         }
 
-        .history-card h3 {
-            margin-bottom: 22px;
-            font-size: 19px;
-        }
-
-        /* ===== 表單 ===== */
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 7px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 11px 13px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: #ffffff;
+        .history-card h2 {
+            font-size: 20px;
             color: var(--text);
-            font-size: 14px;
-            font-family: inherit;
+            margin-bottom: 20px;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: 2px solid #a8c7a9;
-            border-color: var(--primary);
-        }
-
-        .submit-button {
-            width: 100%;
-            padding: 12px;
-            border: none;
+        .history-status {
+            padding: 14px;
+            text-align: center;
+            color: var(--text-light);
+            background: var(--accent);
             border-radius: 8px;
-            background: var(--primary);
-            color: #ffffff;
+            margin-bottom: 20px;
             font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
         }
 
-        .submit-button:hover {
-            background: var(--primary-dark);
+        .history-status.error {
+            color: #b45353;
+            background: #fff1f1;
         }
 
-        /* ===== 排便紀錄清單 ===== */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
         .history-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            min-width: 500px;
         }
 
         .history-table th,
         .history-table td {
-            padding: 13px 10px;
+            padding: 15px;
             text-align: left;
             border-bottom: 1px solid var(--border);
+            font-size: 14px;
         }
 
         .history-table th {
-            color: var(--text-light);
+            background: var(--accent);
+            color: var(--primary-dark);
             font-weight: 600;
-            background: var(--background);
         }
 
         .history-table td {
             color: var(--text);
         }
 
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .shape-tag,
+        .color-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--accent);
+            color: var(--primary-dark);
+            font-size: 13px;
+        }
+
         .empty-message {
-            padding: 35px 10px;
             text-align: center;
+            padding: 35px 15px;
             color: var(--text-light);
-            font-size: 14px;
         }
 
-        /* ===== 平板版面 ===== */
-        @media (max-width: 900px) {
-            .history-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* ===== 手機版面 ===== */
         @media (max-width: 600px) {
             .history-section {
-                padding: 45px 0 60px;
+                padding: 25px 0 40px;
             }
 
             .history-card {
-                padding: 20px;
+                padding: 18px;
             }
 
-            .history-table {
-                font-size: 12px;
-            }
-
-            .history-table th,
-            .history-table td {
-                padding: 11px 6px;
+            .history-header h1 {
+                font-size: 25px;
             }
         }
     </style>
@@ -145,222 +137,143 @@
     <!-- 頁首 -->
     <header class="header">
         <div class="container header-content">
-            <a href="index.html" class="logo">PooLog<span>.</span></a>
-            <span class="header-label">排便紀錄系統</span>
+            <a href="index.html" class="logo">PooLog.</a>
+            <span>排便紀錄系統</span>
         </div>
-
-        <!-- 導覽列 -->
-        <nav class="nav">
-            <div class="container nav-content">
-                <a href="index.html" class="nav-link">首頁</a>
-                <a href="history.html" class="nav-link active">排便紀錄</a>
-                <a href="statistics.html" class="nav-link">統計分析</a>
-                <a href="settings.html" class="nav-link">提醒與設定</a>
-            </div>
-        </nav>
     </header>
 
-    <main>
+    <!-- 導覽列：保留原本設定 -->
+    <nav class="nav">
+        <div class="container nav-content">
+            <a href="index.html" class="nav-link">首頁</a>
+            <a href="history.html" class="nav-link active">排便紀錄</a>
+            <a href="statistics.html" class="nav-link">統計分析</a>
+            <a href="settings.html" class="nav-link">提醒與設定</a>
+        </div>
+    </nav>
 
-        <section class="history-section">
-            <div class="container">
+    <!-- 主要內容 -->
+    <main class="section page-content history-section">
+        <div class="container">
 
-                <!-- 頁面標題 -->
-                <div class="section-heading">
-                    <p class="eyebrow">BOWEL MOVEMENT RECORD</p>
-                    <h2>排便紀錄</h2>
-                    <p>記錄每日排便狀況，掌握自己的腸道健康。</p>
-                </div>
-
-                <div class="history-layout">
-
-                    <!-- 新增排便紀錄表單 -->
-                    <section class="history-card">
-                        <h3>新增排便紀錄</h3>
-
-                        <form id="historyForm">
-
-                            <!-- 日期 -->
-                            <div class="form-group">
-                                <label for="recordDate">排便日期</label>
-                                <input
-                                    type="date"
-                                    id="recordDate"
-                                    required
-                                >
-                            </div>
-
-                            <!-- 糞便形狀 -->
-                            <div class="form-group">
-                                <label for="stoolShape">糞便形狀</label>
-                                <select id="stoolShape" required>
-                                    <option value="">請選擇糞便形狀</option>
-                                    <option value="第1型：硬球狀">第1型：硬球狀</option>
-                                    <option value="第2型：香腸狀但結塊">第2型：香腸狀但結塊</option>
-                                    <option value="第3型：香腸狀有裂痕">第3型：香腸狀有裂痕</option>
-                                    <option value="第4型：平滑柔軟">第4型：平滑柔軟</option>
-                                    <option value="第5型：柔軟塊狀">第5型：柔軟塊狀</option>
-                                    <option value="第6型：糊狀">第6型：糊狀</option>
-                                    <option value="第7型：水狀">第7型：水狀</option>
-                                </select>
-                            </div>
-
-                            <!-- 糞便顏色 -->
-                            <div class="form-group">
-                                <label for="stoolColor">糞便顏色</label>
-                                <select id="stoolColor" required>
-                                    <option value="">請選擇糞便顏色</option>
-                                    <option value="棕色">棕色</option>
-                                    <option value="深棕色">深棕色</option>
-                                    <option value="淺棕色">淺棕色</option>
-                                    <option value="黃色">黃色</option>
-                                    <option value="綠色">綠色</option>
-                                    <option value="黑色">黑色</option>
-                                    <option value="紅色">紅色</option>
-                                    <option value="灰白色">灰白色</option>
-                                </select>
-                            </div>
-
-                            <button type="submit" class="submit-button">
-                                新增排便紀錄
-                            </button>
-
-                        </form>
-                    </section>
-
-                    <!-- 排便紀錄清單 -->
-                    <section class="history-card">
-                        <h3>排便紀錄清單</h3>
-
-                        <table class="history-table">
-                            <thead>
-                                <tr>
-                                    <th>日期</th>
-                                    <th>糞便形狀</th>
-                                    <th>糞便顏色</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="historyList">
-                                <tr>
-                                    <td colspan="3" class="empty-message">
-                                        目前尚無排便紀錄
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                    </section>
-
-                </div>
+            <div class="history-header">
+                <div class="eyebrow">BOWEL MOVEMENT RECORD</div>
+                <h1>排便紀錄</h1>
+                <p>查看系統中所有排便紀錄，掌握每日排便狀況。</p>
             </div>
-        </section>
 
+            <section class="history-card">
+                <h2>所有排便紀錄</h2>
+
+                <div id="historyStatus" class="history-status">
+                    正在載入排便紀錄...
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>糞便形狀</th>
+                                <th>糞便顏色</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="historyList"></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
     </main>
 
     <!-- 頁尾 -->
     <footer class="footer">
-        <div class="container footer-content">
-            <a href="index.html" class="logo">PooLog<span>.</span></a>
+        <div class="container">
+            <p>PooLog.</p>
             <p>記錄日常，關心健康。</p>
         </div>
     </footer>
 
-    <!-- localStorage 資料處理 -->
     <script>
-        const STORAGE_KEY = "poologHistory";
+        // Supabase 連線設定
+        const SUPABASE_URL = "https://adpcqxeyaqoaglgfezjv.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_D2GU03r7CUlFXmzw4zun1g_MJg488yw";
 
-        const historyForm = document.getElementById("historyForm");
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
         const historyList = document.getElementById("historyList");
+        const historyStatus = document.getElementById("historyStatus");
 
-        // 取得 localStorage 資料
-        function getHistory() {
-            try {
-                const data = localStorage.getItem(STORAGE_KEY);
-                const records = data ? JSON.parse(data) : [];
-
-                return Array.isArray(records) ? records : [];
-            } catch (error) {
-                return [];
-            }
-        }
-
-        // 顯示排便紀錄
-        function renderHistory() {
-            const records = getHistory();
-
+        // 讀取所有公開的排便紀錄，不需要登入
+        async function loadHistory() {
+            historyStatus.textContent = "正在載入排便紀錄...";
+            historyStatus.classList.remove("error");
             historyList.replaceChildren();
 
-            if (records.length === 0) {
-                const row = document.createElement("tr");
-                const cell = document.createElement("td");
+            try {
+                const { data, error } = await supabaseClient
+                    .from("bowel_records")
+                    .select("id, record_date, record_time, stool_shape, stool_color")
+                    .order("record_date", { ascending: false })
+                    .order("record_time", { ascending: false });
 
-                cell.colSpan = 3;
-                cell.className = "empty-message";
-                cell.textContent = "目前尚無排便紀錄";
+                if (error) {
+                    throw error;
+                }
 
-                row.appendChild(cell);
-                historyList.appendChild(row);
-                return;
+                // 沒有紀錄時
+                if (!data || data.length === 0) {
+                    historyStatus.textContent = "目前尚無排便紀錄";
+                    return;
+                }
+
+                // 顯示所有紀錄
+                data.forEach(record => {
+                    const row = document.createElement("tr");
+
+                    const dateCell = document.createElement("td");
+                    const shapeCell = document.createElement("td");
+                    const colorCell = document.createElement("td");
+
+                    dateCell.textContent = record.record_date || "—";
+
+                    const shapeTag = document.createElement("span");
+                    shapeTag.className = "shape-tag";
+                    shapeTag.textContent = record.stool_shape || "—";
+
+                    const colorTag = document.createElement("span");
+                    colorTag.className = "color-tag";
+                    colorTag.textContent = record.stool_color || "—";
+
+                    shapeCell.appendChild(shapeTag);
+                    colorCell.appendChild(colorTag);
+
+                    row.appendChild(dateCell);
+                    row.appendChild(shapeCell);
+                    row.appendChild(colorCell);
+
+                    historyList.appendChild(row);
+                });
+
+                historyStatus.textContent =
+                    `目前共有 ${data.length} 筆排便紀錄`;
+
+            } catch (error) {
+                console.error("讀取排便紀錄失敗：", error);
+
+                historyStatus.textContent =
+                    "資料讀取失敗，請確認 Supabase 設定及資料庫查詢權限。";
+
+                historyStatus.classList.add("error");
             }
-
-            records.forEach(function (record) {
-                const row = document.createElement("tr");
-
-                const dateCell = document.createElement("td");
-                dateCell.textContent = record.date;
-
-                const shapeCell = document.createElement("td");
-                shapeCell.textContent = record.shape;
-
-                const colorCell = document.createElement("td");
-                colorCell.textContent = record.color;
-
-                row.appendChild(dateCell);
-                row.appendChild(shapeCell);
-                row.appendChild(colorCell);
-
-                historyList.appendChild(row);
-            });
         }
 
-        // 新增排便紀錄
-        historyForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            const date = document.getElementById("recordDate").value;
-            const shape = document.getElementById("stoolShape").value;
-            const color = document.getElementById("stoolColor").value;
-
-            if (!date || !shape || !color) {
-                alert("請完整填寫排便紀錄！");
-                return;
-            }
-
-            const records = getHistory();
-
-            records.push({
-                date: date,
-                shape: shape,
-                color: color
-            });
-
-            try {
-                localStorage.setItem(
-                    STORAGE_KEY,
-                    JSON.stringify(records)
-                );
-            } catch (error) {
-                alert("資料儲存失敗，請確認瀏覽器儲存空間設定。");
-                return;
-            }
-
-            historyForm.reset();
-            renderHistory();
-        });
-
-        // 頁面載入時顯示已儲存資料
-        renderHistory();
+        // 網頁開啟後自動載入
+        loadHistory();
     </script>
 
 </body>
