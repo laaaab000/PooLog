@@ -28,12 +28,33 @@
     }
 
     authLink.addEventListener("click", async (event) => {
-        if (authLink.dataset.loggedIn !== "true") return;
+
+        if (authLink.dataset.loggedIn !== "true") {
+            return;
+        }
 
         event.preventDefault();
 
         authLink.textContent = "登出中...";
 
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+            alert("登出失敗：" + error.message);
+            await checkSession();
+            return;
+        }
+
+        window.location.href = "index.html";
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+        updateAuthLink(session);
+    });
+
+    checkSession();
+
+})();
         const { error } = await supabase.auth.signOut();
 
         if (error) {
