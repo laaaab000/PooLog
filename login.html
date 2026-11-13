@@ -190,6 +190,7 @@
     </footer>
 
     
+
 (() => {
     const supabase = window.supabaseClient;
 
@@ -197,38 +198,52 @@
     const loginMessage = document.getElementById("loginMessage");
     const loginButton = document.getElementById("loginButton");
 
-    // 確認 Supabase 是否初始化
+    console.log("PooLog 登入程式開始執行");
+
+    // 檢查必要設定
     if (!supabase) {
-        loginMessage.textContent = "系統連線設定錯誤，請稍後再試。";
-        console.error("找不到 window.supabaseClient");
+        loginMessage.textContent = "系統連線失敗：找不到 Supabase 設定";
+        console.error("window.supabaseClient 不存在");
         return;
     }
 
-    // 檢查是否已經登入
+    if (!loginForm || !loginButton || !loginMessage) {
+        console.error("找不到登入表單必要元素");
+        return;
+    }
+
+    // 檢查目前登入狀態
     async function checkLogin() {
         try {
             const { data, error } = await supabase.auth.getSession();
 
             if (error) throw error;
 
+            console.log("目前登入狀態：", data.session);
+
             if (data.session) {
-                window.location.replace("history.html");
+                loginMessage.textContent = "已登入，正在前往排便紀錄頁...";
+                window.location.href = "history.html";
             }
+
         } catch (error) {
             console.error("檢查登入狀態失敗：", error);
+            loginMessage.textContent = "檢查登入狀態失敗：" + error.message;
         }
     }
 
     checkLogin();
 
-    // 登入功能
+    // 登入事件
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+
+        console.log("已觸發登入表單事件");
 
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
 
-        loginMessage.textContent = "";
+        loginMessage.textContent = "正在連接 Supabase...";
         loginButton.disabled = true;
         loginButton.textContent = "登入中...";
 
@@ -238,17 +253,23 @@
                 password
             });
 
-            if (error) throw error;
+            console.log("Supabase 登入回應：", data);
 
-            if (data.session) {
-                loginMessage.style.color = "#456b57";
-                loginMessage.textContent = "登入成功，正在進入系統...";
-
-                window.location.href = "history.html";
+            if (error) {
+                throw error;
             }
 
+            if (!data.session) {
+                throw new Error("登入完成，但沒有取得有效的登入 Session");
+            }
+
+            loginMessage.style.color = "#456b57";
+            loginMessage.textContent = "登入成功，正在跳轉...";
+
+            window.location.replace("history.html");
+
         } catch (error) {
-            console.error("登入錯誤：", error);
+            console.error("登入失敗：", error);
 
             loginMessage.style.color = "#b45353";
             loginMessage.textContent = "登入失敗：" + error.message;
@@ -258,7 +279,11 @@
             loginButton.textContent = "登入";
         }
     });
+
+    console.log("PooLog 登入事件已設定完成");
+
 })();
+
 
 
 </body>
