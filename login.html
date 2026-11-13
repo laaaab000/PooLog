@@ -10,21 +10,17 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* 登入頁面 */
         .login-section {
-            max-width: 480px !important;
-            margin: 60px auto !important;
-            padding: 20px !important;
+            max-width: 480px;
+            margin: 60px auto;
+            padding: 20px;
         }
 
         .login-card {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            background: #ffffff !important;
-            padding: 35px !important;
-            border-radius: 16px !important;
-            border: 1px solid #e6ece6 !important;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 16px;
+            border: 1px solid #e6ece6;
             box-shadow: 0 4px 16px rgba(0,0,0,0.05);
         }
 
@@ -34,6 +30,306 @@
             margin-bottom: 12px;
         }
 
+        .login-description {
+            text-align: center;
+            color: #728078;
+            margin-bottom: 28px;
+        }
+
+        #loginForm {
+            display: block !important;
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #293b32;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            display: block !important;
+            width: 100% !important;
+            height: 46px;
+            padding: 12px;
+            border: 1px solid #dce5dc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: #ffffff;
+            color: #293b32;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: 2px solid #648b76;
+            border-color: #648b76;
+        }
+
+        #loginButton {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #648b76;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #loginButton:hover {
+            background: #456b57;
+        }
+
+        #loginButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #loginMessage {
+            margin-top: 18px;
+            text-align: center;
+            color: #c0392b;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        #loginMessage.success {
+            color: #456b57;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 網站標題 -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="index.html" class="logo">PooLog</a>
+            <span class="header-subtitle">排便紀錄系統</span>
+        </div>
+    </header>
+
+    <!-- 導覽列 -->
+    <nav class="nav">
+        <div class="container nav-content">
+            <a href="index.html" class="nav-link">首頁</a>
+            <a href="history.html" class="nav-link">排便紀錄</a>
+            <a href="statistics.html" class="nav-link">統計分析</a>
+            <a href="settings.html" class="nav-link">提醒與設定</a>
+            <a href="login.html" class="nav-link" id="authLink">登入</a>
+        </div>
+    </nav>
+
+    <!-- 登入區域 -->
+    <main class="container">
+
+        <section class="login-section">
+
+            <div class="login-card">
+
+                <h1 id="pageTitle">使用者登入</h1>
+
+                <p class="login-description" id="pageDescription">
+                    請輸入 Email 和密碼登入 PooLog。
+                </p>
+
+                <form id="loginForm">
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="請輸入 Gmail 或其他 Email"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">密碼</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="請輸入登入密碼"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" id="loginButton">
+                        登入
+                    </button>
+
+                </form>
+
+                <p id="loginMessage" role="status"></p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="footer">
+        <div class="container">
+            <p>記錄日常，關心健康。</p>
+        </div>
+    </footer>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Supabase 設定 -->
+    <script src="supabase-config.js"></script>
+
+    <!-- 共用登入／登出功能 -->
+    <script src="auth-nav.js"></script>
+
+    <!-- 登入頁面功能 -->
+    <script>
+    (() => {
+
+        const supabase = window.supabaseClient;
+
+        const loginForm = document.getElementById("loginForm");
+        const loginButton = document.getElementById("loginButton");
+        const loginMessage = document.getElementById("loginMessage");
+
+        const pageTitle = document.getElementById("pageTitle");
+        const pageDescription = document.getElementById("pageDescription");
+
+        const RETURN_KEY = "poologReturnTo";
+
+        if (!supabase) {
+            loginMessage.textContent =
+                "系統連線失敗，請檢查 Supabase 設定。";
+
+            console.error("找不到 window.supabaseClient");
+            return;
+        }
+
+        // 預設顯示登入表單
+        loginForm.hidden = false;
+
+        // 檢查登入成功後應返回的頁面
+        function getReturnPage() {
+
+            const savedPage = sessionStorage.getItem(RETURN_KEY);
+
+            // 清除已儲存的返回位置
+            sessionStorage.removeItem(RETURN_KEY);
+
+            if (!savedPage) {
+                return "index.html";
+            }
+
+            // 避免返回登入頁本身或外部網址
+            if (
+                savedPage.startsWith("/") ||
+                savedPage.startsWith("//") ||
+                savedPage.includes("://")
+            ) {
+                return "index.html";
+            }
+
+            const target = new URL(savedPage, window.location.origin);
+
+            if (target.origin !== window.location.origin) {
+                return "index.html";
+            }
+
+            if (target.pathname.endsWith("/login.html")) {
+                return "index.html";
+            }
+
+            return target.pathname + target.search + target.hash;
+        }
+
+        // Email 與密碼登入
+        loginForm.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const email =
+                document.getElementById("email").value.trim();
+
+            const password =
+                document.getElementById("password").value;
+
+            loginMessage.textContent = "";
+            loginMessage.classList.remove("success");
+
+            loginButton.disabled = true;
+            loginButton.textContent = "登入中...";
+
+            try {
+
+                const { data, error } =
+                    await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (!data.session) {
+                    throw new Error("登入成功，但沒有取得登入 Session。");
+                }
+
+                // 顯示登入成功訊息
+                pageTitle.textContent = "登入成功";
+
+                pageDescription.textContent =
+                    "即將返回原本瀏覽的頁面。";
+
+                loginForm.hidden = true;
+
+                loginMessage.textContent =
+                    "登入成功！正在返回原頁面...";
+
+                loginMessage.classList.add("success");
+
+                // 返回登入前的頁面
+                const returnPage = getReturnPage();
+
+                window.location.replace(returnPage);
+
+            } catch (error) {
+
+                console.error("登入失敗：", error);
+
+                loginMessage.textContent =
+                    "登入失敗：" + error.message;
+
+            } finally {
+
+                loginButton.disabled = false;
+                loginButton.textContent = "登入";
+
+            }
+
+        });
+
+    })();
+    </script>
+
+</body>
+</html>
         .login-description {
             text-align: center;
             color: #728078;
