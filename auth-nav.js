@@ -3,37 +3,55 @@
     const supabase = window.supabaseClient;
     const authLink = document.getElementById("authLink");
 
-    // 確認設定是否正確
-    if (!supabase) {
-        console.error("找不到 Supabase 設定");
+    if (!supabase || !authLink) {
+        console.error("登入導覽列初始化失敗");
         return;
     }
 
-    if (!authLink) {
-        console.error("找不到登入按鈕 authLink");
-        return;
-    }
-
-    // 更新導覽列登入狀態
     function updateAuthLink(session) {
         const isLoggedIn = !!session;
 
-        if (isLoggedIn) {
-            authLink.textContent = "登出";
-            authLink.href = "#";
-            authLink.dataset.loggedIn = "true";
-        } else {
-            authLink.textContent = "登入";
-            authLink.href = "login.html";
-            authLink.dataset.loggedIn = "false";
-        }
+        authLink.textContent = isLoggedIn ? "登出" : "登入";
+        authLink.href = isLoggedIn ? "#" : "login.html";
+        authLink.dataset.loggedIn = String(isLoggedIn);
     }
 
-    // 頁面載入時取得登入狀態
-    async function checkLoginStatus() {
+    async function checkSession() {
         const { data, error } = await supabase.auth.getSession();
 
         if (error) {
+            console.error("取得登入狀態失敗：", error);
+            return;
+        }
+
+        updateAuthLink(data.session);
+    }
+
+    authLink.addEventListener("click", async (event) => {
+        if (authLink.dataset.loggedIn !== "true") return;
+
+        event.preventDefault();
+
+        authLink.textContent = "登出中...";
+
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+            console.error("登出失敗：", error);
+            alert("登出失敗：" + error.message);
+            await checkSession();
+            return;
+        }
+
+        window.location.href = "index.html";
+    });
+
+    supabase.auth.onAuthStateChange((event, session) => {
+        updateAuthLink(session);
+    });
+
+    checkSession();
+})();
             console.error("取得登入狀態失敗：", error.message);
             return;
         }
