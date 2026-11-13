@@ -4,36 +4,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PooLog｜排便統計分析</title>
+    <title>PooLog｜統計分析</title>
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        .statistics-section {
+            padding: 40px 0 60px;
+        }
+
+        .statistics-header {
+            margin-bottom: 30px;
+        }
+
+        .statistics-header h1 {
+            color: var(--text);
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .statistics-header p {
+            color: var(--text-light);
+        }
+
+        .statistics-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .statistics-status {
+            padding: 14px;
+            background: var(--accent);
+            color: var(--text-light);
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .statistics-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .statistics-table th,
+        .statistics-table td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .statistics-table th {
+            background: var(--accent);
+            color: var(--primary-dark);
+        }
+
+        .summary-number {
+            font-size: 32px;
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+    </style>
 </head>
+
 <body>
 
-    <!-- 頁首 -->
-    <header class="header">
-        <div class="container header-content">
-            <a href="index.html" class="logo">PooLog<span>.</span></a>
-            <span class="header-label">排便紀錄系統</span>
+<header class="header">
+    <div class="container header-content">
+        <a href="index.html" class="logo">PooLog.</a>
+        <span>排便紀錄系統</span>
+    </div>
+</header>
+
+<nav class="nav">
+    <div class="container nav-content">
+        <a href="index.html" class="nav-link">首頁</a>
+        <a href="history.html" class="nav-link">排便紀錄</a>
+        <a href="statistics.html" class="nav-link active">統計分析</a>
+        <a href="settings.html" class="nav-link">提醒與設定</a>
+        <a href="login.html" class="nav-link" id="authLink">登入</a>
+    </div>
+</nav>
+
+<main class="section page-content statistics-section">
+    <div class="container">
+
+        <div class="statistics-header">
+            <h1>統計分析</h1>
+            <p>透過排便紀錄，了解自己的排便頻率。</p>
         </div>
 
-        <!-- 導覽列 -->
-        <nav class="nav">
-            <div class="container nav-content">
-                <a href="index.html" class="nav-link">首頁</a>
-                <a href="history.html" class="nav-link">排便紀錄</a>
-                <a href="statistics.html" class="nav-link active">統計分析</a>
-                <a href="settings.html" class="nav-link">提醒與設定</a>
-                <a href="login.html" class="nav-link" id="authLink">登入</a>
-            </div>
-        </nav>
-    </header>
+        <div id="statisticsStatus" class="statistics-status">
+            正在載入統計資料...
+        </div>
 
-    <main>
-        <section class="section page-content">
-            <div class="container">
-                <div class="section-heading">
-                    <p class="eyebrow">STATISTICS & ANALYSIS</p>
-                    <h2>排便統計分析</h2>
+        <section class="statistics-card">
+            <h2>排便紀錄總數</h2>
+            <div class="summary-number" id="totalCount">—</div>
+            <p>累積排便紀錄筆數</p>
+        </section>
+
+        <section class="statistics-card">
+            <h2>每日排便次數</h2>
+
+            <table class="statistics-table">
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>排便次數</th>
+                    </tr>
+                </thead>
+                <tbody id="dailyStatistics"></tbody>
+            </table>
+        </section>
+
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <p>PooLog.</p>
+        <p>記錄日常，關心健康。</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-nav.js"></script>
+
+<script>
+(async () => {
+    const supabase = window.supabaseClient;
+
+    const status = document.getElementById("statisticsStatus");
+    const totalCount = document.getElementById("totalCount");
+    const dailyStatistics = document.getElementById("dailyStatistics");
+
+    try {
+        const { data: { session }, error: sessionError } =
+            await supabase.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        if (!session) {
+            status.textContent = "請先登入，才能查看統計分析。";
+            totalCount.textContent = "—";
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from("bowel_records")
+            .select("record_date");
+
+        if (error) throw error;
+
+        totalCount.textContent = data.length;
+
+        const counts = {};
+
+        data.forEach(record => {
+            counts[record.record_date] =
+                (counts[record.record_date] || 0) + 1;
+        });
+
+        const dates = Object.keys(counts).sort().reverse();
+
+        if (dates.length === 0) {
+            status.textContent = "目前尚無統計資料。";
+            return;
+        }
+
+        dates.forEach(date => {
+            const row = document.createElement("tr");
+
+            const dateCell = document.createElement("td");
+            const countCell = document.createElement("td");
+
+            dateCell.textContent = date;
+            countCell.textContent = counts[date];
+
+            row.appendChild(dateCell);
+            row.appendChild(countCell);
+
+            dailyStatistics.appendChild(row);
+        });
+
+        status.textContent = "統計資料載入完成。";
+
+    } catch (error) {
+        console.error("統計資料讀取失敗：", error);
+        status.textContent = "資料讀取失敗：" + error.message;
+    }
+})();
+</script>
+
+</body>
+</html>
                 </div>
             </div>
         </section>
