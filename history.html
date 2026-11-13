@@ -16,14 +16,6 @@
             margin-bottom: 30px;
         }
 
-        .history-header .eyebrow {
-            color: var(--primary);
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
-
         .history-header h1 {
             color: var(--text);
             font-size: 30px;
@@ -32,8 +24,213 @@
 
         .history-header p {
             color: var(--text-light);
-            font-size: 15px;
         }
+
+        .history-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 25px;
+        }
+
+        .history-status {
+            padding: 14px;
+            text-align: center;
+            color: var(--text-light);
+            background: var(--accent);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .history-status.error {
+            color: #b45353;
+            background: #fff1f1;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .history-table th {
+            background: var(--accent);
+            color: var(--primary-dark);
+        }
+
+        .shape-tag,
+        .color-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--accent);
+            color: var(--primary-dark);
+        }
+
+        @media (max-width: 600px) {
+            .history-card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="container header-content">
+        <a href="index.html" class="logo">PooLog.</a>
+        <span>排便紀錄系統</span>
+    </div>
+</header>
+
+<nav class="nav">
+    <div class="container nav-content">
+        <a href="index.html" class="nav-link">首頁</a>
+        <a href="history.html" class="nav-link active">排便紀錄</a>
+        <a href="statistics.html" class="nav-link">統計分析</a>
+        <a href="settings.html" class="nav-link">提醒與設定</a>
+        <a href="login.html" class="nav-link" id="authLink">登入</a>
+    </div>
+</nav>
+
+<main class="section page-content history-section">
+    <div class="container">
+
+        <div class="history-header">
+            <h1>排便紀錄</h1>
+            <p>查看排便紀錄，掌握每日排便狀況。</p>
+        </div>
+
+        <section class="history-card">
+            <h2>排便紀錄列表</h2>
+
+            <div id="historyStatus" class="history-status">
+                正在載入排便紀錄...
+            </div>
+
+            <div class="table-wrapper">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>糞便形狀</th>
+                            <th>糞便顏色</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyList"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <p>PooLog.</p>
+        <p>記錄日常，關心健康。</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-nav.js"></script>
+
+<script>
+(async () => {
+    const supabase = window.supabaseClient;
+    const historyList = document.getElementById("historyList");
+    const historyStatus = document.getElementById("historyStatus");
+
+    async function loadHistory() {
+        try {
+            const { data: { session }, error: sessionError } =
+                await supabase.auth.getSession();
+
+            if (sessionError) throw sessionError;
+
+            if (!session) {
+                historyStatus.textContent = "請先登入，才能查看排便紀錄。";
+                return;
+            }
+
+            historyStatus.textContent = "正在載入排便紀錄...";
+
+            const { data, error } = await supabase
+                .from("bowel_records")
+                .select("id, record_date, record_time, stool_shape, stool_color")
+                .order("record_date", { ascending: false })
+                .order("record_time", { ascending: false });
+
+            if (error) throw error;
+
+            if (!data || data.length === 0) {
+                historyStatus.textContent = "目前尚無排便紀錄";
+                return;
+            }
+
+            data.forEach(record => {
+                const row = document.createElement("tr");
+
+                const dateCell = document.createElement("td");
+                const shapeCell = document.createElement("td");
+                const colorCell = document.createElement("td");
+
+                dateCell.textContent = record.record_date || "—";
+
+                const shapeTag = document.createElement("span");
+                shapeTag.className = "shape-tag";
+                shapeTag.textContent = record.stool_shape || "—";
+
+                const colorTag = document.createElement("span");
+                colorTag.className = "color-tag";
+                colorTag.textContent = record.stool_color || "—";
+
+                shapeCell.appendChild(shapeTag);
+                colorCell.appendChild(colorTag);
+
+                row.appendChild(dateCell);
+                row.appendChild(shapeCell);
+                row.appendChild(colorCell);
+
+                historyList.appendChild(row);
+            });
+
+            historyStatus.textContent = `目前共有 ${data.length} 筆排便紀錄`;
+
+        } catch (error) {
+            console.error("讀取紀錄失敗：", error);
+            historyStatus.textContent =
+                "資料讀取失敗：" + error.message;
+            historyStatus.classList.add("error");
+        }
+    }
+
+    if (!supabase) {
+        historyStatus.textContent = "Supabase 設定錯誤。";
+        return;
+    }
+
+    loadHistory();
+})();
+</script>
+
+</body>
+</html>
 
         .history-card {
             background: var(--surface);
