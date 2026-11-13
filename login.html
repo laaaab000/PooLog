@@ -189,61 +189,77 @@
         </div>
     </footer>
 
-    <script>
-        const loginForm = document.getElementById("loginForm");
-        const loginMessage = document.getElementById("loginMessage");
-        const loginButton = document.getElementById("loginButton");
+    
+(() => {
+    const supabase = window.supabaseClient;
 
-        // 檢查是否已經登入
-        async function checkLogin() {
-            const { data: { session } } =
-                await supabaseClient.auth.getSession();
+    const loginForm = document.getElementById("loginForm");
+    const loginMessage = document.getElementById("loginMessage");
+    const loginButton = document.getElementById("loginButton");
 
-            if (session) {
+    // 確認 Supabase 是否初始化
+    if (!supabase) {
+        loginMessage.textContent = "系統連線設定錯誤，請稍後再試。";
+        console.error("找不到 window.supabaseClient");
+        return;
+    }
+
+    // 檢查是否已經登入
+    async function checkLogin() {
+        try {
+            const { data, error } = await supabase.auth.getSession();
+
+            if (error) throw error;
+
+            if (data.session) {
                 window.location.replace("history.html");
             }
+        } catch (error) {
+            console.error("檢查登入狀態失敗：", error);
         }
+    }
 
-        checkLogin();
+    checkLogin();
 
-        // 登入功能
-        loginForm.addEventListener("submit", async (event) => {
-            event.preventDefault();
+    // 登入功能
+    loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value;
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-            loginMessage.textContent = "";
-            loginButton.disabled = true;
-            loginButton.textContent = "登入中...";
+        loginMessage.textContent = "";
+        loginButton.disabled = true;
+        loginButton.textContent = "登入中...";
 
-            try {
-                const { data, error } =
-                    await supabaseClient.auth.signInWithPassword({
-                        email: email,
-                        password: password
-                    });
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
 
-                if (error) {
-                    throw error;
-                }
+            if (error) throw error;
 
-                if (data.session) {
-                    window.location.href = "history.html";
-                }
+            if (data.session) {
+                loginMessage.style.color = "#456b57";
+                loginMessage.textContent = "登入成功，正在進入系統...";
 
-            } catch (error) {
-                loginMessage.textContent =
-                    "登入失敗，請確認電子郵件及密碼是否正確。";
-
-                console.error("登入錯誤：", error);
-
-            } finally {
-                loginButton.disabled = false;
-                loginButton.textContent = "登入";
+                window.location.href = "history.html";
             }
-        });
-    </script>
+
+        } catch (error) {
+            console.error("登入錯誤：", error);
+
+            loginMessage.style.color = "#b45353";
+            loginMessage.textContent = "登入失敗：" + error.message;
+
+        } finally {
+            loginButton.disabled = false;
+            loginButton.textContent = "登入";
+        }
+    });
+})();
+
 
 </body>
 </html>
