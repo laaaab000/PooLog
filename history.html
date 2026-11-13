@@ -201,10 +201,7 @@
         const SUPABASE_URL = "https://adpcqxeyaqoaglgfezjv.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_D2GU03r7CUlFXmzw4zun1g_MJg488yw";
 
-        const supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_ANON_KEY
-        );
+
 
         const historyList = document.getElementById("historyList");
         const historyStatus = document.getElementById("historyStatus");
@@ -216,11 +213,11 @@
             historyList.replaceChildren();
 
             try {
-                const { data, error } = await supabaseClient
-                    .from("bowel_records")
-                    .select("id, record_date, record_time, stool_shape, stool_color")
-                    .order("record_date", { ascending: false })
-                    .order("record_time", { ascending: false });
+                const { data, error } = await window.supabaseClient
+    .from("bowel_records")
+    .select("id, record_date, record_time, stool_shape, stool_color")
+    .order("record_date", { ascending: false })
+    .order("record_time", { ascending: false });
 
                 if (error) {
                     throw error;
