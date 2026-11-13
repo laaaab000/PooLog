@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PooLog｜使用者登入</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth-nav.js" defer></script>
+
+    <style>
+        .login-section {
+            padding: 60px 20px 80px;
+        }
+
+        .login-card {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 35px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-title h1 {
+            color: var(--text);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-title p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form label {
+            display: block;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .login-form input:focus {
+            border-color: var(--primary);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .login-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .login-message {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 14px;
+            color: #b45353;
+        }
+
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 22px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .login-card {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 頁首 -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="index.html" class="logo">PooLog.</a>
+            <span>排便紀錄系統</span>
+        </div>
+    </header>
+
+    <!-- 導覽列 -->
+    <nav class="nav">
+        <div class="container nav-content">
+            <a href="index.html" class="nav-link">首頁</a>
+            <a href="history.html" class="nav-link">排便紀錄</a>
+            <a href="statistics.html" class="nav-link">統計分析</a>
+            <a href="settings.html" class="nav-link">提醒與設定</a>
+            <a href="login.html" class="nav-link active" id="authLink">登入</a>
+        </div>
+    </nav>
+
+    <!-- 登入內容 -->
+    <main class="section page-content login-section">
+        <div class="login-card">
+
+            <div class="login-title">
+                <h1>使用者登入</h1>
+                <p>登入 PooLog，查看個人排便紀錄。</p>
+            </div>
+
+            <form id="loginForm" class="login-form">
+
+                <div class="form-group">
+                    <label for="email">電子郵件</label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="請輸入電子郵件"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密碼</label>
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="請輸入密碼"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" id="loginButton" class="login-button">
+                    登入
+                </button>
+
+                <p id="loginMessage" class="login-message"></p>
+
+            </form>
+
+            <a href="index.html" class="back-home">返回首頁</a>
+
+        </div>
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="footer">
+        <div class="container">
+            <p>PooLog.</p>
+            <p>記錄日常，關心健康。</p>
+        </div>
+    </footer>
+
+    <script>
+        const loginForm = document.getElementById("loginForm");
+        const loginMessage = document.getElementById("loginMessage");
+        const loginButton = document.getElementById("loginButton");
+
+        // 檢查是否已經登入
+        async function checkLogin() {
+            const { data: { session } } =
+                await supabaseClient.auth.getSession();
+
+            if (session) {
+                window.location.replace("history.html");
+            }
+        }
+
+        checkLogin();
+
+        // 登入功能
+        loginForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+
+            loginMessage.textContent = "";
+            loginButton.disabled = true;
+            loginButton.textContent = "登入中...";
+
+            try {
+                const { data, error } =
+                    await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (data.session) {
+                    window.location.href = "history.html";
+                }
+
+            } catch (error) {
+                loginMessage.textContent =
+                    "登入失敗，請確認電子郵件及密碼是否正確。";
+
+                console.error("登入錯誤：", error);
+
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = "登入";
+            }
+        });
+    </script>
+
+</body>
+</html>
