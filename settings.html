@@ -4,36 +4,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PooLog｜提醒與個人設定</title>
+    <title>PooLog｜提醒與設定</title>
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        .settings-section {
+            padding: 40px 0 60px;
+        }
+
+        .settings-header {
+            margin-bottom: 30px;
+        }
+
+        .settings-header h1 {
+            color: var(--text);
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .settings-header p {
+            color: var(--text-light);
+        }
+
+        .settings-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .settings-card h2 {
+            color: var(--text);
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .settings-card p {
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+
+        .settings-status {
+            padding: 14px;
+            background: var(--accent);
+            border-radius: 8px;
+            color: var(--text-light);
+            text-align: center;
+        }
+    </style>
 </head>
+
 <body>
 
-    <!-- 頁首 -->
-    <header class="header">
-        <div class="container header-content">
-            <a href="index.html" class="logo">PooLog<span>.</span></a>
-            <span class="header-label">排便紀錄系統</span>
+<header class="header">
+    <div class="container header-content">
+        <a href="index.html" class="logo">PooLog.</a>
+        <span>排便紀錄系統</span>
+    </div>
+</header>
+
+<nav class="nav">
+    <div class="container nav-content">
+        <a href="index.html" class="nav-link">首頁</a>
+        <a href="history.html" class="nav-link">排便紀錄</a>
+        <a href="statistics.html" class="nav-link">統計分析</a>
+        <a href="settings.html" class="nav-link active">提醒與設定</a>
+        <a href="login.html" class="nav-link" id="authLink">登入</a>
+    </div>
+</nav>
+
+<main class="section page-content settings-section">
+    <div class="container">
+
+        <div class="settings-header">
+            <h1>提醒與設定</h1>
+            <p>管理個人使用設定，養成良好的健康管理習慣。</p>
         </div>
 
-        <!-- 導覽列 -->
-        <nav class="nav">
-            <div class="container nav-content">
-                <a href="index.html" class="nav-link">首頁</a>
-                <a href="history.html" class="nav-link">排便紀錄</a>
-                <a href="statistics.html" class="nav-link">統計分析</a>
-                <a href="settings.html" class="nav-link active">提醒與設定</a>
-                <a href="login.html" class="nav-link" id="authLink">登入</a>
+        <section class="settings-card">
+            <h2>排便提醒</h2>
+            <p>透過規律提醒，幫助自己養成良好的排便習慣。</p>
+            <div class="settings-status">
+                提醒功能即將推出！
             </div>
-        </nav>
-    </header>
+        </section>
 
-    <main>
-        <section class="section page-content">
-            <div class="container">
-                <div class="section-heading">
-                    <p class="eyebrow">REMINDERS & SETTINGS</p>
-                    <h2>提醒與個人設定</h2>
+        <section class="settings-card">
+            <h2>飲水提醒</h2>
+            <p>適時補充水分，維持日常生活中的良好習慣。</p>
+            <div class="settings-status">
+                飲水提醒功能即將推出！
+            </div>
+        </section>
+
+        <section class="settings-card">
+            <h2>個人設定</h2>
+            <p>未來將提供個人化設定與提醒管理功能。</p>
+            <div class="settings-status">
+                個人設定功能即將推出！
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <p>PooLog.</p>
+        <p>記錄日常，關心健康。</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-nav.js"></script>
+
+</body>
+</html>
                 </div>
             </div>
         </section>
