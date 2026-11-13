@@ -4,36 +4,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PooLog｜排便紀錄系統</title>
+    <title>PooLog｜首頁</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 頁首 -->
-    <header class="header">
-        <div class="container header-content">
-            <a href="index.html" class="logo">PooLog<span>.</span></a>
-            <span class="header-label">排便紀錄系統</span>
-        </div>
+<header class="header">
+    <div class="container header-content">
+        <a href="index.html" class="logo">PooLog.</a>
+        <span>排便紀錄系統</span>
+    </div>
+</header>
 
-        <!-- 導覽列 -->
-        <nav class="nav">
-            <div class="container nav-content">
-                <a href="index.html" class="nav-link active">首頁</a>
-                <a href="history.html" class="nav-link">排便紀錄</a>
-                <a href="statistics.html" class="nav-link">統計分析</a>
-                <a href="settings.html" class="nav-link">提醒與設定</a>
-                <a href="login.html" class="nav-link" id="authLink">登入</a>
+<nav class="nav">
+    <div class="container nav-content">
+        <a href="index.html" class="nav-link active">首頁</a>
+        <a href="history.html" class="nav-link">排便紀錄</a>
+        <a href="statistics.html" class="nav-link">統計分析</a>
+        <a href="settings.html" class="nav-link">提醒與設定</a>
+        <a href="login.html" class="nav-link" id="authLink">登入</a>
+    </div>
+</nav>
+
+<main class="section page-content">
+    <div class="container">
+
+        <section style="padding: 60px 0; text-align: center;">
+            <p style="color: var(--primary); letter-spacing: 2px; font-weight: 700;">
+                YOUR DAILY HEALTH JOURNAL
+            </p>
+
+            <h1 style="font-size: 34px; color: var(--text); margin: 20px 0;">
+                記錄每日排便狀況，<br>
+                掌握自己的腸道健康！
+            </h1>
+
+            <p style="color: var(--text-light); line-height: 1.8;">
+                PooLog 是一個簡單方便的排便紀錄系統，<br>
+                幫助使用者記錄每日排便情形，了解排便頻率與變化。
+            </p>
+
+            <a href="history.html" class="btn"
+               style="display: inline-block; margin-top: 25px;">
+                查看排便紀錄
+            </a>
+        </section>
+
+        <section style="padding: 30px 0 60px;">
+            <h2 style="text-align: center; margin-bottom: 30px;">
+                系統功能
+            </h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>01 排便紀錄</h3>
+                    <p>查看每日排便日期與時間。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>02 糞便狀況紀錄</h3>
+                    <p>記錄糞便形狀與顏色。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>03 統計分析</h3>
+                    <p>了解每日及每週排便情形。</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>04 提醒與設定</h3>
+                    <p>管理個人提醒與系統設定。</p>
+                </div>
             </div>
-        </nav>
-    </header>
+        </section>
 
-    <main>
+    </div>
+</main>
 
-        <!-- 首頁介紹 -->
-        <section class="hero">
-            <div class="container hero-content">
-                <p class="eyebrow">YOUR DAILY HEALTH JOURNAL</p>
+<footer class="footer">
+    <div class="container">
+        <p>PooLog.</p>
+        <p>記錄日常，關心健康。</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="auth-nav.js"></script>
+
+</body>
+</html>
 
                 <h1>記錄每日排便狀況，<br>掌握自己的腸道健康！</h1>
 
