@@ -7,10 +7,6 @@
     <title>PooLog｜使用者登入</title>
     <link rel="stylesheet" href="style.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="auth-nav.js" defer></script>
-
     <style>
         .login-section {
             padding: 60px 20px 80px;
@@ -34,6 +30,337 @@
         .login-title h1 {
             color: var(--text);
             font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-title p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form label {
+            display: block;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .login-form input:focus {
+            border-color: var(--primary);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .login-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .login-message {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 14px;
+            color: #b45353;
+            line-height: 1.7;
+        }
+
+        .login-message.success {
+            color: var(--primary-dark);
+        }
+
+        .history-button {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            margin-top: 18px;
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+
+        .history-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 22px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .login-card {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 頁首 -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="index.html" class="logo">PooLog.</a>
+            <span>排便紀錄系統</span>
+        </div>
+    </header>
+
+    <!-- 導覽列 -->
+    <nav class="nav">
+        <div class="container nav-content">
+            <a href="index.html" class="nav-link">首頁</a>
+            <a href="history.html" class="nav-link">排便紀錄</a>
+            <a href="statistics.html" class="nav-link">統計分析</a>
+            <a href="settings.html" class="nav-link">提醒與設定</a>
+            <a href="login.html" class="nav-link active" id="authLink">登入</a>
+        </div>
+    </nav>
+
+    <!-- 登入內容 -->
+    <main class="section page-content login-section">
+        <div class="login-card">
+
+            <div class="login-title">
+                <h1 id="pageTitle">使用者登入</h1>
+                <p id="pageDescription">
+                    登入 PooLog，查看個人排便紀錄。
+                </p>
+            </div>
+
+            <form id="loginForm" class="login-form">
+
+                <div class="form-group">
+                    <label for="email">電子郵件</label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="請輸入電子郵件"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密碼</label>
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="請輸入密碼"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" id="loginButton" class="login-button">
+                    登入
+                </button>
+
+                <p id="loginMessage" class="login-message"></p>
+
+            </form>
+
+            <a
+                href="history.html"
+                id="historyButton"
+                class="history-button"
+                hidden
+            >
+                前往排便紀錄
+            </a>
+
+            <a href="index.html" class="back-home">返回首頁</a>
+
+        </div>
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="footer">
+        <div class="container">
+            <p>PooLog.</p>
+            <p>記錄日常，關心健康。</p>
+        </div>
+    </footer>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 共用 Supabase 設定 -->
+    <script src="supabase-config.js"></script>
+
+    <!-- 共用登入與登出功能 -->
+    <script src="auth-nav.js"></script>
+
+    <!-- 登入頁功能 -->
+    <script>
+        (() => {
+            const supabase = window.supabaseClient;
+
+            const loginForm = document.getElementById("loginForm");
+            const loginButton = document.getElementById("loginButton");
+            const loginMessage = document.getElementById("loginMessage");
+            const authLink = document.getElementById("authLink");
+
+            const pageTitle = document.getElementById("pageTitle");
+            const pageDescription = document.getElementById("pageDescription");
+            const historyButton = document.getElementById("historyButton");
+
+            // 檢查 Supabase 設定
+            if (!supabase) {
+                loginMessage.textContent =
+                    "系統連線失敗，請檢查 Supabase 設定。";
+
+                console.error("找不到 window.supabaseClient");
+                return;
+            }
+
+            // 更新登入頁面及導覽列
+            function updateLoginPage(session) {
+                if (session) {
+                    authLink.textContent = "登出";
+                    authLink.href = "#";
+                    authLink.dataset.loggedIn = "true";
+
+                    pageTitle.textContent = "登入成功";
+                    pageDescription.textContent =
+                        "歡迎使用 PooLog 排便紀錄系統！";
+
+                    loginForm.hidden = true;
+                    historyButton.hidden = false;
+
+                    loginMessage.classList.add("success");
+                    loginMessage.textContent =
+                        "你已成功登入，可以前往查看排便紀錄。";
+
+                } else {
+                    authLink.textContent = "登入";
+                    authLink.href = "login.html";
+                    authLink.dataset.loggedIn = "false";
+
+                    pageTitle.textContent = "使用者登入";
+                    pageDescription.textContent =
+                        "登入 PooLog，查看個人排便紀錄。";
+
+                    loginForm.hidden = false;
+                    historyButton.hidden = true;
+
+                    loginMessage.classList.remove("success");
+                    loginMessage.textContent = "";
+                }
+            }
+
+            // 檢查目前登入狀態
+            async function checkLogin() {
+                try {
+                    const { data, error } =
+                        await supabase.auth.getSession();
+
+                    if (error) throw error;
+
+                    updateLoginPage(data.session);
+
+                } catch (error) {
+                    console.error("取得登入狀態失敗：", error);
+
+                    loginMessage.textContent =
+                        "無法取得登入狀態：" + error.message;
+                }
+            }
+
+            // 監聽登入狀態變化
+            supabase.auth.onAuthStateChange((event, session) => {
+                updateLoginPage(session);
+            });
+
+            // 登入功能
+            loginForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const email =
+                    document.getElementById("email").value.trim();
+
+                const password =
+                    document.getElementById("password").value;
+
+                loginMessage.textContent = "";
+                loginMessage.classList.remove("success");
+
+                loginButton.disabled = true;
+                loginButton.textContent = "登入中...";
+
+                try {
+                    const { data, error } =
+                        await supabase.auth.signInWithPassword({
+                            email: email,
+                            password: password
+                        });
+
+                    if (error) throw error;
+
+                    if (!data.session) {
+                        throw new Error("登入成功，但沒有取得登入 Session。");
+                    }
+
+                    // 立即更新導覽列
+                    updateLoginPage(data.session);
+
+                } catch (error) {
+                    console.error("登入失敗：", error);
+
+                    loginMessage.textContent =
+                        "登入失敗：" + error.message;
+
+                } finally {
+                    loginButton.disabled = false;
+                    loginButton.textContent = "登入";
+                }
+            });
+
+            // 初始化頁面
+            checkLogin();
+
+        })();
+    </script>
+
+</body>
+</html>
             margin-bottom: 10px;
         }
 
